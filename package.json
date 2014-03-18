@@ -1,7 +1,6 @@
 {
   "name": "download-check",
   "version": "0.0.0",
-  "main": "lib/download-check.js",
   "description": "Check for downloads on FTP",
   "homepage": "user/repo",
   "bugs": "user/repo/issues",
@@ -18,11 +17,7 @@
       "type": "MIT"
     }
   ],
-  "files": [
-    ""
-  ],
-  "keywords":[
-  ],
+  "keywords": [],
   "devDependencies": {
     "grunt-contrib-jshint": "~0.7.0",
     "grunt-contrib-nodeunit": "~0.2.0",
@@ -33,5 +28,15 @@
   },
   "scripts": {
     "test": "grunt"
+  },
+  "dependencies": {
+    "ssh2": "^0.2.19",
+    "colors": "^0.6.2",
+    "cli-table": "^0.3.0",
+    "moment": "^2.5.1",
+    "filesize": "^2.0.3",
+    "nconf": "^0.6.9",
+    "dotenv": "^0.2.5",
+    "q": "^1.0.1"
   }
 }
