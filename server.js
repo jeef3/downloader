@@ -145,7 +145,7 @@ c.on('ready', function() {
 
         sftp.fastGet(
           dl,
-          path.join(__dirname, toDownload.filename),
+          path.join(nconf.get('SAVE_DIR'), toDownload.filename),
           {
             step: function (transferred, chunk, total) {
               bar.update(transferred / total);
