@@ -2,9 +2,11 @@
 
 var Connection = require('ssh2');
 var Table = require('cli-table');
+var path = require('path');
 var q = require('q');
 var moment = require('moment');
 var filesize = require('filesize');
+var ProgressBar = require('progress');
 var dotenv = require('dotenv');
 var nconf = require('nconf');
 
@@ -16,7 +18,8 @@ nconf
   .env();
 
 var table = new Table({
-  head: ['File', 'Size', 'Last Modified']
+  head: ['File', 'Size', 'Last Modified'],
+  chars: {'mid': '', 'left-mid': '', 'mid-mid': '', 'right-mid': ''}
 });
 
 var c = new Connection();
@@ -129,8 +132,34 @@ c.on('ready', function() {
 
         console.log(table.toString());
 
-        sftp.end();
-        c.end();
+        var toDownload = files[files.length - 1];
+        var dl = toDownload.path + '/' + toDownload.filename;
+
+        console.log('Downloading %s', toDownload.filename);
+        var bar = new ProgressBar('Downloading: [:bar] :percent :etas', {
+          complete: '▇',
+          incomplete: ' ',
+          width: 40,
+          total: toDownload.attrs.size
+        });
+
+        sftp.fastGet(
+          dl,
+          path.join(__dirname, toDownload.filename),
+          {
+            step: function (transferred, chunk, total) {
+              bar.update(transferred / total);
+            }
+          },
+          function (err) {
+            if (err) {
+              throw err;
+            }
+            console.log('Finished downloading %s', dl);
+
+            sftp.end();
+            c.end();
+          });
       });
   });
 });
