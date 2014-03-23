@@ -3,6 +3,7 @@
 var Connection = require('ssh2');
 // var Table = require('cli-table');
 var path = require('path');
+var fs = require('fs');
 var q = require('q');
 // var moment = require('moment');
 // var filesize = require('filesize');
@@ -132,7 +133,9 @@ c.on('ready', function() {
             })
           }], function (answers) {
             var file = answers.files;
-            var dl = file.path + '/' + file.filename;
+            var remoteFile = file.path + '/' + file.filename;
+            var localFile = path.join(nconf.get('TEMP_SAVE_DIR'), file.filename);
+            var finalLocalFile = path.join(nconf.get('SAVE_DIR'), file.filename);
 
             console.log('Downloading %s'.black, file.filename);
             var bar = new ProgressBar('Downloading: [:bar] :percent :etas', {
@@ -142,9 +145,10 @@ c.on('ready', function() {
               total: file.attrs.size
             });
 
+
             sftp.fastGet(
-              dl,
-              path.join(nconf.get('SAVE_DIR'), file.filename),
+              remoteFile,
+              localFile,
               {
                 step: function (transferred, chunk, total) {
                   bar.update(transferred / total);
@@ -154,7 +158,9 @@ c.on('ready', function() {
                 if (err) {
                   throw err;
                 }
-                console.log('Finished downloading %s', dl);
+
+                fs.renameSync(localFile, finalLocalFile);
+                console.log('Finished downloading to %s', finalLocalFile);
 
                 sftp.end();
                 c.end();
@@ -171,7 +177,11 @@ c.on('end', function() {
   console.log('Connection :: end');
 });
 c.on('close', function(hadError) {
-  console.log('Connection :: close');
+  if (hadError) {
+    console.log('Connection :: error close');
+  } else {
+    console.log('Connection :: close');
+  }
 });
 
 console.log('Connecting...');
