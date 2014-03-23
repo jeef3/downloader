@@ -1,12 +1,13 @@
 'use strict';
 
 var Connection = require('ssh2');
-var Table = require('cli-table');
+// var Table = require('cli-table');
 var path = require('path');
 var q = require('q');
-var moment = require('moment');
-var filesize = require('filesize');
+// var moment = require('moment');
+// var filesize = require('filesize');
 var ProgressBar = require('progress');
+var inquirer = require('inquirer');
 var dotenv = require('dotenv');
 var nconf = require('nconf');
 
@@ -17,10 +18,10 @@ nconf
   .argv()
   .env();
 
-var table = new Table({
-  head: ['File', 'Size', 'Last Modified'],
-  chars: {'mid': '', 'left-mid': '', 'mid-mid': '', 'right-mid': ''}
-});
+// var table = new Table({
+//   head: ['File', 'Size', 'Last Modified'],
+//   chars: {'mid': '', 'left-mid': '', 'mid-mid': '', 'right-mid': ''}
+// });
 
 var c = new Connection();
 c.on('ready', function() {
@@ -120,46 +121,42 @@ c.on('ready', function() {
 
     readDirectory(nconf.get('HOME_DIR'))
       .then(function (files) {
-        console.log('Building table for %d files', files.length);
 
-        files.forEach(function (file) {
-          table.push([
-            file.filename,
-            filesize(file.attrs.size || 0),
-            moment(file.attrs.atime * 1000).fromNow()
-          ]);
-        });
-
-        console.log(table.toString());
-
-        var toDownload = files[files.length - 1];
-        var dl = toDownload.path + '/' + toDownload.filename;
-
-        console.log('Downloading %s', toDownload.filename);
-        var bar = new ProgressBar('Downloading: [:bar] :percent :etas', {
-          complete: '▇',
-          incomplete: ' ',
-          width: 40,
-          total: toDownload.attrs.size
-        });
-
-        sftp.fastGet(
-          dl,
-          path.join(nconf.get('SAVE_DIR'), toDownload.filename),
+        inquirer.prompt([
           {
-            step: function (transferred, chunk, total) {
-              bar.update(transferred / total);
-            }
-          },
-          function (err) {
-            if (err) {
-              throw err;
-            }
-            console.log('Finished downloading %s', dl);
+            type: 'list',
+            message: 'Select files to download',
+            name: 'files',
+            choices: files.map(function (f) {
+              return { name: f.filename, value: f };
+            })
+          }], function (answers) {
+            var file = answers.files;
+            var dl = file.path + '/' + file.filename;
 
-            sftp.end();
-            c.end();
-          });
+            console.log('Downloading %s'.black, file.filename);
+            var bar = new ProgressBar('Downloading: [:bar] :percent :etas', {
+              complete: '▇',
+              incomplete: ' ',
+              width: 40,
+              total: file.attrs.size
+            });
+
+            sftp.fastGet(
+              dl,
+              path.join(nconf.get('SAVE_DIR'), file.filename),
+              {
+                step: function (transferred, chunk, total) {
+                  bar.update(transferred / total);
+                }
+              },
+              function (err) {
+                if (err) {
+                  throw err;
+                }
+                console.log('Finished downloading %s', dl);
+              });
+            });
       });
   });
 });
