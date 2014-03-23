@@ -37,8 +37,6 @@ c.on('ready', function() {
         if (err) {
           throw err;
         }
-
-        sftp.end();
       });
     };
 
@@ -95,25 +93,24 @@ c.on('ready', function() {
             deferred.reject(err);
           }
 
-          // if (files) {
-          //   readFilesPromises.push(readFiles(path, files));
+          if (files) {
+            readFilesPromises.push(readFiles(path, files));
 
-          //   // Next buffer
-          //   sftp.readdir(handle, readDir);
-          // } else {
-          //   closeHandle(handle);
-          //   console.log('Waiting for file reads');
-          //   q.all(readFilesPromises)
-          //     .then(function (f) {
-          //       console.log('All file reads resolved');
-          //       deferred.resolve(f);
-          //     });
-          // }
-          readFiles(path, files)
-            .then(function (f) {
-              // TODO: If you get the multiple buffer checks working, this will be an array
-              deferred.resolve(f);
-            });
+            // Next buffer
+            sftp.readdir(handle, readDir);
+          } else {
+            closeHandle(handle);
+            console.log('Waiting for file reads');
+            q.all(readFilesPromises)
+              .then(function (readFiles) {
+                console.log('All file reads resolved');
+                var fileList = [];
+                readFiles.forEach(function (f) {
+                  fileList = fileList.concat(f);
+                });
+                deferred.resolve(fileList);
+              });
+          }
         };
 
         sftp.readdir(handle, readDir);
@@ -136,6 +133,7 @@ c.on('ready', function() {
 
         console.log(table.toString());
 
+        sftp.end();
         c.end();
       });
   });
@@ -147,7 +145,7 @@ c.on('error', function(err) {
 c.on('end', function() {
   console.log('Connection :: end');
 });
-c.on('close', function(had_error) {
+c.on('close', function(hadError) {
   console.log('Connection :: close');
 });
 
