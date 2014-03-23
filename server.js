@@ -155,6 +155,9 @@ c.on('ready', function() {
                   throw err;
                 }
                 console.log('Finished downloading %s', dl);
+
+                sftp.end();
+                c.end();
               });
             });
       });
