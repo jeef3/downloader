@@ -51,17 +51,13 @@ c.on('ready', function() {
           return;
         }
 
-        if (file.filename === 'Californication') {
-          return;
-        }
-
         if (file.longname.indexOf('d') === 0) {
           dirPromises.push(readDirectory(path + '/' + file.filename));
         }
 
         // Only look for video files
         if (/mkv|mp4/.test(file.filename)) {
-          // console.log('Adding', file.filename);
+          file.path = path;
           fileList.push(file);
         }
       });
@@ -100,10 +96,10 @@ c.on('ready', function() {
             sftp.readdir(handle, readDir);
           } else {
             closeHandle(handle);
-            console.log('Waiting for file reads');
+
             q.all(readFilesPromises)
               .then(function (readFiles) {
-                console.log('All file reads resolved');
+
                 var fileList = [];
                 readFiles.forEach(function (f) {
                   fileList = fileList.concat(f);
