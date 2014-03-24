@@ -1,9 +1,12 @@
 'use strict';
 
+var inquirer = require('inquirer');
+
 var connect = require('./connect');
 var checker = require('./checker');
 var select = require('./select');
 var downloader = require('./downloader');
+var uploader = require('./uploader');
 var remover = require('./remover');
 var closer = require('./closer');
 
@@ -12,12 +15,34 @@ connect()
   .then(function (options) {
     var check = checker(options.sftp);
     var download = downloader(options.sftp);
+    var upload = uploader(options.sftp);
     var remove = remover(options.sftp);
     var closeConnection = closer(options.connection, options.sftp);
 
-    check()
-      .then(select)
-      .then(download)
-      .then(remove)
-      .then(closeConnection);
+    inquirer.prompt([
+      {
+        type: 'list',
+        message: 'Upload or download?',
+        name: 'option',
+        choices: [
+          'Upload',
+          'Download'
+        ]
+      }], function (answers) {
+        if (answers.option === 'Upload') {
+          check.local()
+            .then(select)
+            .then(upload)
+            .then(remove.local)
+            .then(closeConnection);
+        }
+
+        if (answers.option === 'Download') {
+          check.remote()
+            .then(select)
+            .then(download)
+            .then(remove.remote)
+            .then(closeConnection);
+        }
+      });
   });

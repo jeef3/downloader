@@ -9,7 +9,7 @@ module.exports = function (files) {
   inquirer.prompt([
     {
       type: 'list',
-      message: 'Select file to download',
+      message: 'Select file to upload/download',
       name: 'file',
       choices: files.map(function (f) {
         return { name: f.filename, value: f };

@@ -1,5 +1,6 @@
 'use strict';
 
+var fs = require('fs');
 var Q = require('q');
 
 var config = require('./config');
@@ -88,17 +89,38 @@ module.exports = function (sftp) {
     return readDirDeferred.promise;
   };
 
-  return function () {
-    var deferred = Q.defer();
+  return {
+    remote: function () {
+      var deferred = Q.defer();
 
-    console.log('Checking for new files...');
+      console.log('Checking for new remote files...');
 
-    readDir(config.get('HOME_DIR'))
-      .then(function (files) {
-        console.log('Found %d new files to download', files.length);
+      readDir(config.get('DOWNLOAD_DIR'))
+        .then(function (files) {
+          console.log('Found %d new files to download', files.length);
+          deferred.resolve(files);
+        });
+
+      return deferred.promise;
+    },
+    local: function () {
+      var deferred = Q.defer();
+
+      console.log('Checking for new local files...');
+
+      fs.readdir(config.get('UPLOAD_FROM_DIR'), function (err, files) {
+        if (err) {
+          throw err;
+        }
+
+        files = files.filter(function (file) {
+          return (/torrent/).test(file);
+        });
+
         deferred.resolve(files);
       });
 
-    return deferred.promise;
+      return deferred.promise;
+    }
   };
 };

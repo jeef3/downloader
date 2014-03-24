@@ -1,7 +1,7 @@
 {
   "name": "download-check",
   "version": "0.0.0",
-  "description": "Check for downloads on FTP",
+  "description": "Check for downloads on SFTP",
   "homepage": "user/repo",
   "bugs": "user/repo/issues",
   "author": {
@@ -32,7 +32,6 @@
   "dependencies": {
     "ssh2": "^0.2.19",
     "colors": "^0.6.2",
-    "cli-table": "^0.3.0",
     "moment": "^2.5.1",
     "filesize": "^2.0.3",
     "nconf": "^0.6.9",
