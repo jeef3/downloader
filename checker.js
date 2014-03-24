@@ -97,7 +97,7 @@ module.exports = function (sftp) {
 
       readDir(config.get('DOWNLOAD_DIR'))
         .then(function (files) {
-          console.log('Found %d new files to download', files.length);
+          console.log('Found %s new files to download', files.length.toString().bold);
           deferred.resolve(files);
         });
 
@@ -117,6 +117,7 @@ module.exports = function (sftp) {
           return (/torrent/).test(file);
         });
 
+        console.log('Found %s new files to upload', files.length.toString().bold);
         deferred.resolve(files);
       });
 

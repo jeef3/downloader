@@ -8,14 +8,14 @@ module.exports = function (files) {
 
   inquirer.prompt([
     {
-      type: 'list',
+      type: 'checkbox',
       message: 'Select file to upload/download',
-      name: 'file',
+      name: 'files',
       choices: files.map(function (f) {
         return { name: f.filename, value: f };
       })
     }], function (answers) {
-      deferred.resolve([answers.file]);
+      deferred.resolve(answers.files);
     });
 
   return deferred.promise;
