@@ -30,10 +30,10 @@ module.exports = function (sftp) {
       }
 
       // Only look for video files
-      // if (/mkv|mp4/.test(file.filename)) {
+      if (/mkv|mp4|txt/.test(file.filename)) {
         file.path = path;
         fileList.push(file);
-      // }
+      }
     });
 
     Q.all(readDirPromises)

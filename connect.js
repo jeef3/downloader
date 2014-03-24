@@ -10,40 +10,40 @@ var config = require('./config');
 module.exports = function () {
   var deferred = Q.defer();
 
-  var c = new Connection();
-  c.on('ready', function() {
-    c.sftp(function(err, sftp) {
+  var connection = new Connection();
+  connection.on('ready', function() {
+    connection.sftp(function(err, sftp) {
       if (err) {
         throw err;
       }
 
       sftp.on('end', function() {
-        console.log('SFTP :: SFTP session closed');
+        console.log('SFTP session closed');
       });
 
       console.log('Connected'.green);
-      deferred.resolve(sftp);
+      deferred.resolve({ connection: connection, sftp: sftp });
     });
   });
 
-  c.on('error', function(err) {
-    console.log('Connection :: error :: ' + err);
+  connection.on('error', function(err) {
+    console.log('Connection dropped: %s'.red, err);
   });
 
-  c.on('end', function() {
-    console.log('Connection :: end');
+  connection.on('end', function() {
+    console.log('Connection ended');
   });
 
-  c.on('close', function(hadError) {
+  connection.on('close', function(hadError) {
     if (hadError) {
-      console.log('Connection :: error close');
+      console.log('Connection closed due to an error'.red);
     } else {
-      console.log('Connection :: close');
+      console.log('Connection closed');
     }
   });
 
   console.log('Connecting...');
-  c.connect({
+  connection.connect({
     host: config.get('HOST'),
     port: config.get('PORT'),
     username: config.get('USERNAME'),

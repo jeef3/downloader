@@ -5,6 +5,8 @@ var fs = require('fs');
 var Q = require('q');
 var ProgressBar = require('progress');
 
+require('colors');
+
 var config = require('./config');
 
 module.exports = function (sftp) {
@@ -18,7 +20,7 @@ module.exports = function (sftp) {
     var finalLocalFile = path.join(config.get('SAVE_DIR'), file.filename);
 
     console.log('Downloading %s'.black, file.filename);
-    var bar = new ProgressBar('Downloading: [:bar] :percent :etas', {
+    var bar = new ProgressBar('Downloading: |:bar| :percent :etas', {
       complete: '▇',
       incomplete: ' ',
       width: 40,
@@ -39,7 +41,7 @@ module.exports = function (sftp) {
         }
 
         fs.renameSync(localFile, finalLocalFile);
-        console.log('Finished downloading to %s', finalLocalFile);
+        console.log('Finished downloading to %s'.green, finalLocalFile.bold);
 
         deferred.resolve(files);
       });

@@ -3,6 +3,20 @@
 var Q = require('q');
 
 module.exports = function (sftp) {
+  var deleteFile = function (file) {
+    var deferred = Q.defer();
+
+    sftp.unlink(file, function (err) {
+      if (err) {
+        throw err;
+      }
+
+      deferred.resolve();
+    });
+
+    return deferred.promise;
+  };
+
   return function (files) {
     var deferred = Q.defer();
 
@@ -13,11 +27,12 @@ module.exports = function (sftp) {
       console.log('Deleting remote file:', toRemove);
 
       unlinkDeferreds
-        .push(Q.nfcall(sftp.unlink, toRemove));
+        .push(deleteFile(toRemove));
     });
 
     Q.all(unlinkDeferreds)
       .then(function () {
+        console.log('Files deleted');
         deferred.resolve();
       }, function (err) {
         if (err) {
