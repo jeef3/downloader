@@ -45,7 +45,6 @@ connect()
           check.remote()
             .then(select)
             .then(download)
-            .then(remove.remote)
             .then(closeConnection)
             .then(function () {
               shelljs.exit(0);

@@ -50,7 +50,14 @@ module.exports = function (sftp) {
           fs.renameSync(localFile, finalLocalFile);
           console.log('Finished downloading to %s'.green, finalLocalFile.bold);
 
-          downloadNext();
+          console.log('Deleting remote file: %s'.black, remoteFile);
+          sftp.unlink(remoteFile, function (err) {
+            if (err) {
+              throw err;
+            }
+
+            downloadNext();
+          });
         });
     };
 
