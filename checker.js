@@ -26,12 +26,17 @@ module.exports = function (sftp) {
         return;
       }
 
+      // Skip sample videos
+      if (/^sample|sample.(mkv|mp4)/.test(file.filename)) {
+        return;
+      }
+
       if (file.longname.indexOf('d') === 0) {
         readDirPromises.push(readDir(path + '/' + file.filename));
       }
 
       // Only look for video files
-      if (/mkv|mp4|txt/.test(file.filename)) {
+      if (/mkv|mp4/.test(file.filename)) {
         file.path = path;
         fileList.push(file);
       }
