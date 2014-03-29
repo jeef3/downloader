@@ -1,5 +1,6 @@
 'use strict';
 
+var shelljs = require('shelljs');
 var inquirer = require('inquirer');
 
 var connect = require('./connect');
@@ -34,7 +35,10 @@ connect()
             .then(select)
             .then(upload)
             .then(remove.local)
-            .then(closeConnection);
+            .then(closeConnection)
+            .then(function () {
+              shelljs.exit(0);
+            });
         }
 
         if (answers.option === 'Download') {
@@ -42,7 +46,10 @@ connect()
             .then(select)
             .then(download)
             .then(remove.remote)
-            .then(closeConnection);
+            .then(closeConnection)
+            .then(function () {
+              shelljs.exit(0);
+            });
         }
       });
   });
